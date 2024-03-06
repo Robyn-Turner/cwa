@@ -1,0 +1,77 @@
+#This program reads data that was collected from an emebedded system microbit process and combines this data with 3 input parameters
+#Reads data from microbit from cvs file 
+
+#Import statements
+import pandas as pd
+from statistics import mean
+import csv
+import serial
+import matplotlib.pyplot as plt
+
+#This function validates the calculated data min,max,mean BR2
+def validate_data(Good_min, Good_max, Good_mean):
+    if not isinstance(Good_min, float):
+        Good_min = float(Good_min)
+    if not isinstance(Good_mean, float):
+        Good_mean = float(Good_mean)
+    if not isinstance(Good_max, float):
+        Good_max = float(Good_max)
+    return Good_min, Good_max, Good_mean
+#user interface asking 3 questions to the user 
+Opinion = int(input("On a scale of 1-10 how good are period tracking apps in your opinion: "))
+Time = int(input("How often do you use period tracking apps on a scale of 1-10: "))
+Wellbeing = int(input("On a scale to 1-10 how do period tracking apps improve your wellbeing: "))
+avg_mood = round(mean([Opinion,Time,Wellbeing]),2)
+#Combining Opinion , Time and Wellbeing to print an overall expierience for the user 
+print("My expierience with peroid tracking apps is  ", " ", avg_mood)
+
+file_path = '105657-MicrobitData.csv'
+#Opens and reads the csv file that was created by the microbit BR1 
+with open(file_path, 'r', newline='') as csvfile:
+ 
+    csv_reader = csv.reader(csvfile)
+    
+    
+    for row in csv_reader:
+        
+        print(row)  
+
+df = pd.read_csv('105657-MicrobitData.csv')
+Good_min = df['Good'].min()
+Good_max = df['Bad'].max()
+Good_mean = df['Needswork'].mean()
+print ("Min = ",Good_min,"Max = ", Good_max, "Mean = ",Good_mean,"Average Mood= ", avg_mood)
+
+df = pd.read_csv('105657-MicrobitData.csv')
+
+#Validate data BR2
+Good_min, Good_max, Good_mean = validate_data(Good_min, Good_max, Good_mean)   #BR2
+
+
+#Takes data from csv file to Plot pie chart 
+variable_names = ['Good', 'Bad','Needs Work']
+values = [Good_min, Good_max,Good_mean]
+# Creating the bar chart
+plt.bar(variable_names, values)
+
+# Adding labels and title
+plt.xlabel('good')
+plt.ylabel('Bad')
+plt.title('Needs Work')
+
+# Show the plot
+plt.show()
+
+
+
+#opens results csv file BR
+f=open("BR1-3_105657.csv","a",newline='')
+csver=csv.writer(f)
+csver.writerow([Good_min, Good_max ,Good_mean, avg_mood])
+f.close()
+
+#Prints data from BR1-3 Results csv 
+df2 = pd.read_csv('BR1-3_105657.csv')
+print(df2)
+
+
